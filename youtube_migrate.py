@@ -1,15 +1,12 @@
 """
 Automatic migration of subscriptions to another
 YouTube account with Python and Selenium.
-
 Tested with:
  - selenium 3.0
  - chrome 79.0
  - python 3.5
-
  1. Install selenium from pypi:
     $ pip install selenium
-
  2. Go to the down of page https://www.youtube.com/subscription_manager
     and download your current subscriptions feed.
     Save file as subscription_manager.xml in current folder or update the runtime variable below
@@ -21,7 +18,6 @@ Tested with:
  
  5. Copy the profile folder (found using chrome://version) and rename the folder to Default. 
     Place the folder in an empty parent folder and paste the parent folder's path in the variable below
-
  6. Run script and go to drink coffee.
     It will take some time.
 """
@@ -30,6 +26,7 @@ Tested with:
 like_button_with_pressed_attribute = 'ytd-toggle-button-renderer.style-scope.ytd-menu-renderer.force-icon-button button' #This button is not pressable and only contains an attribute that shows the video was already liked
 like_button_to_press = 'ytd-toggle-button-renderer.style-scope.ytd-menu-renderer.force-icon-button.style-text'
 subscribe_button = '#subscribe-button'
+subscribe_button_text = subscribe_button + " paper-button"
 youtube_video_url_base = 'https://www.youtube.com/watch?v='
 youtube_channel_url_base = 'https://www.youtube.com/channel/'
 
@@ -40,17 +37,35 @@ from xml.dom import minidom
 import json
 import time
 import re
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--likes_location', '-ll', help='file containing the likes', type=str, default='./likes.json', dest='likes_location')
+parser.add_argument('--subscriptions_location', '-sl', help='file containing the subscriptions', type=str, default='./subscription_manager.xml', dest='subscriptions_location')
+parser.add_argument("--transfer_subscriptions", '-ts', type=bool, nargs='?',
+                        const=True, default=False,
+                        help="Add this argument to transfer subscriptions",
+                        dest='transfer_subscriptions')
+parser.add_argument("--transfer_likes", '-tl', type=bool, nargs='?',
+                        const=True, default=False,
+                        help="Add this argument to transfer likes",
+                        dest='transfer_likes')
+args = parser.parse_args()
 
 # Runtime variables
-likes_json_locaion = "./likes.json"
-subscriptions_location = "./subscription_manager.xml"
+likes_json_locaion = args.likes_location
+subscriptions_location = args.subscriptions_location
+do_subscriptions = args.transfer_subscriptions
+do_likes = args.transfer_likes
 
 def main():
     options = Options()
     options.add_argument("user-data-dir=C:\\Users\\Jesca\\Desktop\\youtube transfer\\profile")
     driver = webdriver.Chrome(options=options)
-    transfer_subscribtions(driver)
-    transfer_likes(driver)
+    if do_subscriptions:
+        transfer_subscribtions(driver)
+    if do_likes:
+        transfer_likes(driver)
     driver.close()
     
 def transfer_likes(driver):
@@ -123,7 +138,7 @@ def subscribe(driver, channel):
         time.sleep(1)
 
         button = driver.find_element_by_css_selector(subscribe_button)
-        is_subscribed = button.get_attribute('data-is-subscribed')
+        is_subscribed = driver.find_element_by_css_selector(subscribe_button_text).get_attribute("subscribed")
 
         if not is_subscribed:
             button.click()
