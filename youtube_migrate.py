@@ -1,5 +1,5 @@
 """
-Automatic migration of subscriptions to another
+Automatic migration of subscriptions and likes to another
 YouTube account with Python and Selenium.
 Tested with:
  - selenium 3.0
