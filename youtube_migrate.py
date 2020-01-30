@@ -50,6 +50,7 @@ parser.add_argument('--likes_location', '-ll', help='file containing the likes',
 parser.add_argument('--subscriptions_location', '-sl', help='file containing the subscriptions', type=str, default='./subscription_manager.xml', dest='subscriptions_location')
 parser.add_argument('--likes_done_location', '-ldl', help='file containing the likes already done', type=str, default='./likes_done', dest='likes_done_location')
 parser.add_argument('--subscriptions_done_location', '-sdl', help='file containing the subscriptions already done', type=str, default='./subscriptions_done', dest='subscriptions_done_location')
+parser.add_argument('--chrome_profile_path', '-cpp', help='path to the chrome profile', type=str, default='./profile', dest='chrome_profile_path')
 parser.add_argument("--transfer_subscriptions", '-ts', type=bool, nargs='?',
                         const=True, default=False,
                         help="Add this argument to transfer subscriptions",
@@ -67,10 +68,11 @@ do_subscriptions = args.transfer_subscriptions
 do_likes = args.transfer_likes
 likes_done_path = args.likes_done_location
 subscriptions_done_path = args.subscriptions_done_location
+chrome_profile_path = args.chrome_profile_path
 
 def main():
     options = Options()
-    options.add_argument("user-data-dir=C:\\Users\\Jesca\\Desktop\\youtube transfer\\profile")
+    options.add_argument("user-data-dir=" + chrome_profile_path)
     driver = webdriver.Chrome(options=options)
     if do_subscriptions:
         transfer_subscriptions(driver)
